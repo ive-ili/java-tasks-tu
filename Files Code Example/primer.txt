@@ -1,0 +1,54 @@
+public void saveRecipesToFile(List<Recipe> recipes) throws IOException {
+    try (BufferedWriter writer = new BufferedWriter(new FileWriter("recipes.csv"))) {
+        for (Recipe recipe : recipes) {
+            writer.write(recipe.getName() + ",");
+            writer.write(recipe.getDescription() + ",");
+            for (Ingredient ingredient : recipe.getIngredients()) {
+                writer.write(ingredient.getName() + ",");
+                writer.write(ingredient.getAmount().toString() + ",");
+                writer.write(ingredient.getUnitOfMeasure() + ",");
+            }
+            writer.write("\n");
+        }
+    }
+}
+
+public List<Recipe> loadRecipesFromFile() throws IOException {
+    List<Recipe> recipes = new ArrayList<>();
+    try (BufferedReader reader = new BufferedReader(new FileReader("recipes.csv"))) {
+        String line;
+        while ((line = reader.readLine()) != null) {
+            String[] data = line.split(",");
+            Recipe recipe = new Recipe(data[0], data[1]);
+            for (int i = 2; i < data.length - 1; i += 3) {
+                recipe.addIngredient(new Ingredient(data[i], Double.parseDouble(data[i + 1]), data[i + 2]));
+            }
+            recipes.add(recipe);
+        }
+    }
+    return recipes;
+}
+
+List<Recipe> recipes = new ArrayList<>();
+RecipeManager recipeManager = new RecipeManager();
+
+// Add recipes to the recipeManager
+recipes.add(new Recipe("Pizza", "A delicious Italian dish"));
+recipes.add(new Recipe("Pasta", "A classic Italian dish"));
+recipes.add(new Recipe("Lasagna", "A hearty Italian dish"));
+
+// Save recipes to a CSV file
+recipeManager.saveRecipesToFile(recipes);
+
+// Load recipes from a CSV file
+recipes = recipeManager.loadRecipesFromFile();
+
+// Use the loaded recipes
+for (Recipe recipe : recipes) {
+    System.out.println(recipe.getName());
+    System.out.println(recipe.getDescription());
+    for (Ingredient ingredient : recipe.getIngredients()) {
+        System.out.println(ingredient.getName() + ": " + ingredient.getAmount() + " " + ingredient.getUnitOfMeasure());
+    }
+    System.out.println();
+}
